@@ -8,7 +8,7 @@ import {
   signInWithRedirect,
 } from 'firebase/auth';
 import {
-  collection, addDoc, onSnapshot, deleteDoc, doc, getDoc, updateDoc, increment,
+  collection, addDoc, onSnapshot, deleteDoc, doc, getDoc, updateDoc, arrayUnion, Timestamp, arrayRemove, orderBy, query,
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
@@ -31,22 +31,26 @@ export function redirectResult() {
   return getRedirectResult(auth);
 }
 
-export function saveTask(description, usuarioPost) {
-  const docRef = addDoc(collection(db, 'tasks'), { description, usuarioPost, usersLike:}); // Acá utilizo la función addDoc de Firestore para agregar un documento a la colección en la base de datos db.El segundo argumento es un Objeto que contiene la descripción del documento nuevo almacenado
-  return docRef; // la función devuelve el documento nuevo que se agregó en la base de datos.
+export function saveTask(description, userid, email) {
+  return addDoc(collection(db, 'tasks'), {
+    description, createBy: userid, usersLike: [], createAt: Timestamp.now(), displayName: email,
+  });
 }
 
-export function onGetPost(callback) {
-  const unsubscribe = onSnapshot(collection(db, 'tasks'), (querySnapshot) => { // onSnapShot de Firestore es una función que toma 2 argumentos, el primero es la referencia a la colección que se desea evaluar y el segundo es una función de devolución de llamada que se invocará cada vez que se produce un cambio en la colección.
-    // eslint-disable-next-line max-len
+export function onGetPost(callback, userid) {
+  const taskCollection = collection(db, 'tasks');
+  const queryTask = query(taskCollection, orderBy('createAt', 'desc'));
+  const unsubscribe = onSnapshot(queryTask, (querySnapshot) => { // onSnapShot de Firestore es una función que toma 2 argumentos, el primero es la referencia a la colección que se desea evaluar y el segundo es una función de devolución de llamada que se invocará cada vez que se produce un cambio en la colección.
     // Dentro de la función de devolución de llamada creo un array vacío donde iran los post nuevos que se creen
     const posts = [];
-    querySnapshot.forEach((docRef) => {
-      // eslint-disable-next-line max-len
-      // Dentro del bucle se crea un objeto que contiene la propiedad id del documento y todas la propiedades del doc. con el metodo .data(). Este objeto se va agregando a "post".
+    querySnapshot.forEach((doc) => { // Dentro del bucle se crea un objeto que contiene la propiedad id del documento y todas la propiedades del doc. con el metodo .data(). Este objeto se va agregando a "post".
+      const task = doc.data();
       posts.push({
-        id: docRef.id,
-        ...docRef.data(),
+        id: doc.id,
+        likeCount: task.usersLike.length,
+        hasLike: task.usersLike.includes(userid),
+        isOwn: task.createBy == userid,
+        ...task,
       });
     });
     callback(posts);
@@ -57,13 +61,9 @@ export function onGetPost(callback) {
 export function deletePost(id) {
   const deleteP = deleteDoc(doc(db, 'tasks', id));
   return deleteP;
-  const deleteP = deleteDoc(doc(db, 'tasks', id));
-  return deleteP;
 }
 
 export function getPost(id) {
-  const editPost = getDoc(doc(db, 'tasks', id));
-  return editPost;
   const editPost = getDoc(doc(db, 'tasks', id));
   return editPost;
 }
@@ -73,10 +73,12 @@ export function updatePost(id, newPost) {
   return upadatePosts;
 }
 
-export function giveLike(id) {
-  const tasksReference = doc(db, 'tasks', id);
-  return updateDoc(tasksReference, {
-    likeCount: increment(1),
-  });
+export function giveLikes(id, userid) {
+  const postRef = doc(db, 'tasks', id);
+  return updateDoc(postRef, { usersLike: arrayUnion(userid) });
 }
 
+export function removeLikes(id, userid) {
+  const postRef = doc(db, 'tasks', id);
+  return updateDoc(postRef, { usersLike: arrayRemove(userid) });
+}

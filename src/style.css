@@ -352,7 +352,7 @@ label{
   position: fixed;
   top: 49%;
   left: 50%;
-  transform: translate(-50%, -90%);
+  transform: translate(-46%, -50%);
 }
 
 .sectionGeneral {
@@ -1223,6 +1223,10 @@ button{
 
   .iconos-inferior-img{
     display: flex;
+  }
+
+  .iconos-inferior-img{
+    display: flex;
     flex-direction: row;
     justify-content: space-around;
     width: 90%;
@@ -1231,10 +1235,12 @@ button{
     width: 7%;
     cursor: pointer;
   }
+
   .icono-create-inf{
     width: 10%;
     cursor: pointer;
   }
+
   .icono-perfil-inf{
     width: 9%;
     cursor: pointer;
@@ -1289,21 +1295,7 @@ button{
     cursor: pointer;
   }
 
-  .iconos-inferior-img{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    width: 90%;
-  }
-  .icono-home-inf{
-    width: 6%;
-    cursor: pointer;
-  }
   .icono-create-inf{
-    width: 10%;
-    cursor: pointer;
-  }
-  .icono-perfil-inf{
     width: 9%;
     cursor: pointer;
   }

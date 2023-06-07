@@ -138,12 +138,13 @@ function login(navigateTo) {
     const provider = new GoogleAuthProvider();
     signInWithRedirect(auth, provider);
   });
-  getRedirectResult(auth).then((useCredential) => {
-    console.log(useCredential);
-    if (useCredential) {
-      // GUARDAR LA INFO EN EL SESION STORAGE
-      sessionStorage.setItem('user', JSON.stringify(useCredential.user.email));
 
+  getRedirectResult(auth).then((userCredential) => {
+    console.log(userCredential);
+    if (userCredential) {
+      // // GUARDAR LA INFO EN EL SESION STORAGE
+      sessionStorage.setItem('user', userCredential.user.uid);
+      sessionStorage.setItem('email', userCredential.user.email);
       navigateTo('/home');
     }
   });
