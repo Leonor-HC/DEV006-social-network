@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 import {
-  saveTask, onGetPost, deletePost, getPost, updatePost, giveLikes, removeLikes,
+  saveTask, onGetPost, deletePost, getPost, updatePost,
 } from '../helpers/lib/Auth';
 
 function home(/* navigateTo */) {
@@ -48,16 +48,20 @@ function home(/* navigateTo */) {
   const email = sessionStorage.getItem('email');
 
   let editStatus = false;
+  let editStatus = false;
   let id = '';
+  window.addEventListener('load', () => {
+    const renderPost = (posts) => { // Se ejecuta una función con argumento Posts que es el array de objetos que representa los datos de los Posts en la colección de Firestore
   window.addEventListener('load', () => {
     const renderPost = (posts) => { // Se ejecuta una función con argumento Posts que es el array de objetos que representa los datos de los Posts en la colección de Firestore
       divPosts.innerHTML = '';
       posts.forEach((post) => { // recorro el array de objetos y en cada uno de los Post creo un nuevo elemento P para luego pintarlo en el HTML
+      posts.forEach((post) => { // recorro el array de objetos y en cada uno de los Post creo un nuevo elemento P para luego pintarlo en el HTML
         console.log(post.id);
 
-        const deleteButton = (post.isOwn) ? `<button class = 'btn-delete'><i class="material-icons" data-id='${post.id}'>delete_forever</i></button>` : '';
-        const editarButton = (post.isOwn) ? `<button class = 'btn-edit'><i class="material-icons" data-id='${post.id}'>edit</i></button>` : '';
-        const likeButton = (post.hasLike) ? `<button class='btn-like' ><i class="material-icons"  data-id='${post.id}'>pets</i></button> ` : `<button class='btn-like'><i class="material-icons"  data-id='${post.id}'>favorite_border</i></button> `;
+        const deleteButton = (user === post.usuarioPost) ? `<button class = 'btn-delete' data-id= '${post.id}'>Borrar Post</button>` : '';
+        const editarButton = (user === post.usuarioPost) ? `<button class = 'btn-edit' data-id = '${post.id}'> Edit</button>` : '';
+
         divPosts.innerHTML += `
       <div>
       <h3>${post.displayName}</h3>    
@@ -78,13 +82,21 @@ function home(/* navigateTo */) {
       });
       /*  <button class = 'btn-delete' data-id= '${post.id}'>Borrar Post</button> */
 
+
       const btnDeletePost = document.querySelectorAll('.btn-delete');
+      btnDeletePost.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
       btnDeletePost.forEach((btn) => {
         btn.addEventListener('click', (e) => {
           deletePost(e.target.dataset.id);
         });
       });
+        });
+      });
 
+      const btnEdit = document.querySelectorAll('.btn-edit');
+      btnEdit.forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
       const btnEdit = document.querySelectorAll('.btn-edit');
       btnEdit.forEach((btn) => {
         btn.addEventListener('click', async (e) => {
@@ -92,27 +104,15 @@ function home(/* navigateTo */) {
           const postEdit = doc.data();
           formPost['task-description'].value = postEdit.description;
 
+          formPost['task-description'].value = postEdit.description;
+
           editStatus = true;
           id = doc.id;
-        });
-      });
-
-      const btnLike = document.querySelectorAll('.btn-like');
-      btnLike.forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          console.log(e.target.dataset.id);
-          const post = posts.find((p) => p.id == e.target.dataset.id);
-          if (post.hasLike) {
-            removeLikes(post.id, userid);
-            console.log('le di like');
-          } else {
-            giveLikes(post.id, userid);
-            console.log('le di dislike');
-          }
+          //  formPost['btn-savePost'].innerText = 'Actualizar'
         });
       });
     };
-    onGetPost(renderPost, userid);
+    onGetPost(renderPost);
   });
 
   iconInicio.setAttribute('src', '../assets/iconHome.png');
@@ -203,22 +203,46 @@ function home(/* navigateTo */) {
   section.append(menuAr, postAndFooter, perroAr);
 
   formPost.addEventListener('submit', (e) => {
+  formPost.addEventListener('submit', (e) => {
     e.preventDefault();
     const description = formPost['task-description'];
     if (editStatus) {
       updatePost(id, { description: description.value }).then(() => {
+    if (editStatus) {
+      updatePost(id, { description: description.value }).then(() => {
         editStatus = false;
-        formPost.reset();
       }).catch((error) => {
         console.log(error);
       });
     } else {
-      saveTask(description.value, userid, email).then(() => {
+      saveTask(description.value, user).then(() => {
         formPost.reset();
       }).catch((error) => {
         console.log(error);
       });
+      }).catch((error) => {
+        console.log(error);
+      });
     }
+
+    // const description = formPost['task-description'];
+    // if(editStatus) {
+    //   const postPromise = saveTask(description.value, user)
+    //   postPromise.then(() => {
+    //  updatePost(id, {description: description.value});
+    //   editStatus = false
+    //   }).catch((error)=>{
+    //   console.log(error);
+    //   })
+    //   } else {
+    //     const postPromise = saveTask(description.value, user)
+    //     postPromise.then(()=> {
+    //       saveTask(description.value, user)
+    //     }).catch((error)=>{
+    //       console.log(error);
+    //     })
+    // }
+    formPost.reset();
   });
 
   return section;
