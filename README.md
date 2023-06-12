@@ -30,6 +30,8 @@ El proyecto se creó en una SPA que consta de 3 vistas:
 
 Se usó también Firebase como alamacenamiento de la base de datos de los usuarios, en donde se utilizó los servicios de Auth, y Firestore, este último, para crear las funciones de publicar post, dar like y conteo de los mismos, dar dislike, editar y borrar post. 
 
+* [Enlace directo a nuestra web](https://social-network-dev006.web.app/)
+
 ## 2. Estado del Proyecto
 Actualmente el proyecto se encuentra con funcionamiento para ingreso de usuarios enlazado con Firebase, se puede ingresar tanto con correo y contraseña o directamente con Google, en la parte de Home se encuentra funcionando la creación de post y la opción de: dar like, dislike, borrar y editar. 
 
